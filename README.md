@@ -1,159 +1,125 @@
-# ngrok: Running Streamlit Apps on Google Colab with ngrok
-![Image](https://github.com/user-attachments/assets/33b27b24-f471-4e7b-b2b0-835610efec52)
+# NgrokTunnel 🌐
+
+![Streamlit](https://img.shields.io/badge/Streamlit-Deploy%20Live%20Apps-blue?style=flat-square) ![Ngrok](https://img.shields.io/badge/Ngrok-Tunnel%20Service-green?style=flat-square) ![Google Colab](https://img.shields.io/badge/Google%20Colab-Cloud%20Notebook-orange?style=flat-square)
+
+Welcome to the **NgrokTunnel** repository! This project demonstrates how to deploy a live Streamlit web app directly from Google Colab using ngrok for public access. Since Colab doesn’t expose ports externally, ngrok creates a secure tunnel, allowing anyone to interact with your app via a temporary public URL.
+
 ## Table of Contents
-1. [Project Overview](#project-overview)
-2. [System Architecture](#system-architecture)
-3. [Setup Instructions](#setup-instructions)
-4. [Workflow Explanation](#workflow-explanation)
-5. [Troubleshooting](#troubleshooting)
-6. [Security Considerations](#security-considerations)
-7. [Limitations](#limitations)
 
-## Project Overview
+1. [Introduction](#introduction)
+2. [Getting Started](#getting-started)
+3. [Usage](#usage)
+4. [Requirements](#requirements)
+5. [Installation](#installation)
+6. [How It Works](#how-it-works)
+7. [Example](#example)
+8. [Contributing](#contributing)
+9. [License](#license)
+10. [Releases](#releases)
+11. [Contact](#contact)
 
-This project demonstrates how to create and deploy a Streamlit web application directly from Google Colab using ngrok for public access. The solution provides a quick way to prototype and share data applications without requiring local development environments or cloud hosting services.
+## Introduction
 
-Key Components:
-- **Google Colab**: Cloud-based Jupyter notebook environment
-- **Streamlit**: Python framework for building web apps
-- **ngrok**: Secure tunnel to localhost for public access
-- **pyngrok**: Python wrapper for ngrok
+In the age of cloud computing, rapid prototyping and sharing ideas has never been easier. With tools like Google Colab, you can write and run Python code in your browser without any setup. However, sharing a live web app built with Streamlit directly from Colab can be challenging. This repository addresses that challenge by utilizing ngrok, a powerful tool that creates secure tunnels to localhost.
 
-## System Architecture
+## Getting Started
 
-```mermaid
-graph TD
-    A[User Browser] -->|HTTP Request| B[ngrok Public URL]
-    B -->|Tunnel| C[Google Colab: Streamlit on port 8501]
-    C --> D[Python Application]
-    D --> E[Streamlit UI Components]
+To get started with NgrokTunnel, you need a Google account to access Google Colab. You will also need to install the required packages and set up ngrok to create a tunnel for your Streamlit app.
+
+## Usage
+
+1. **Clone the repository:**
+
+   ```bash
+   git clone https://github.com/AlexQuinhuang/NgrokTunnel.git
+   cd NgrokTunnel
+   ```
+
+2. **Open Google Colab:**
+
+   Go to [Google Colab](https://colab.research.google.com/) and create a new notebook.
+
+3. **Copy the code:**
+
+   Copy the provided code from this repository into your Colab notebook.
+
+4. **Run the code:**
+
+   Execute the code cells to start your Streamlit app and ngrok tunnel.
+
+5. **Access your app:**
+
+   After running the code, you will receive a public URL. Click on the URL to access your live Streamlit app.
+
+## Requirements
+
+- Python 3.x
+- Google Colab
+- Streamlit
+- ngrok
+- pyngrok
+
+## Installation
+
+To install the required packages, run the following commands in your Google Colab notebook:
+
+```python
+!pip install streamlit
+!pip install pyngrok
 ```
 
-## Setup Instructions
+## How It Works
 
-### Prerequisites
-1. Google account (for Colab access)
-2. Free ngrok account (for authentication token)
+1. **Streamlit App:** You write your Streamlit app code in a Python script.
+2. **Ngrok Tunnel:** Ngrok creates a secure tunnel from your local machine to the public internet. This allows users to access your app through a temporary URL.
+3. **Colab Integration:** Google Colab runs your code in the cloud, but it does not expose ports. Ngrok bridges this gap.
 
-### Step-by-Step Implementation
+## Example
 
-1. **Create a new Colab notebook**
-   - Go to [Google Colab](https://colab.research.google.com/)
-   - Click "New Notebook"
+Here’s a simple example of a Streamlit app:
 
-2. **Install required packages**
-   ```python
-   !pip install streamlit pyngrok -q
-   ```
+```python
+import streamlit as st
 
-3. **Create the Streamlit app file**
-   ```python
-   %%writefile app.py
-   import streamlit as st
-   import pandas as pd
-   
-   st.set_page_config(page_title="Colab App", layout="wide")
-   st.title("My First Streamlit Web App")
-   # ... rest of your Streamlit code ...
-   ```
+st.title("Hello, World!")
+st.write("This is a live Streamlit app running from Google Colab!")
+```
 
-4. **Configure ngrok and run the app**
-   ```python
-   from pyngrok import ngrok
-   import threading
-   import time
-   import subprocess
-   
-   # Set your ngrok authtoken
-   ngrok.set_auth_token("YOUR_NGROK_AUTHTOKEN_HERE")
-   
-   # Function to run Streamlit in background
-   def run_streamlit():
-       subprocess.Popen(["streamlit", "run", "app.py", "--server.port", "8501", "--server.headless", "true"])
-   
-   # Start Streamlit in a thread
-   threading.Thread(target=run_streamlit).start()
-   time.sleep(5)
-   
-   # Create ngrok tunnel
-   public_url = ngrok.connect(8501)
-   print("Public URL:", public_url)
-   ```
+To run this app, use the following code in your Colab notebook:
 
-## Workflow Explanation
+```python
+from pyngrok import ngrok
 
-1. **Initialization Phase**
-   - Packages are installed in the Colab environment
-   - Streamlit app file (`app.py`) is created
-   - ngrok is authenticated using your token
+# Start ngrok
+public_url = ngrok.connect(port='8501')
+print(f" * ngrok tunnel \"{public_url}\" -> \"http://localhost:8501\"")
 
-2. **Execution Phase**
-   - Streamlit server starts on port 8501 in headless mode
-   - ngrok creates a secure tunnel to this port
-   - Public URL is generated and displayed
+!streamlit run your_app.py &
 
-3. **Access Phase**
-   - Users can access the app via the ngrok URL
-   - All interactions are tunneled through ngrok to Colab
-   - Session remains active as long as the Colab notebook is running
+# Keep the notebook running
+import time
+while True:
+    time.sleep(1)
+```
 
-## Troubleshooting
+Replace `your_app.py` with the name of your Streamlit app file.
 
-| Issue | Solution |
-|-------|----------|
-| ngrok authentication failed | Verify your auth token at https://dashboard.ngrok.com/get-started/your-authtoken |
-| Streamlit not starting | Check Colab runtime (Menu > Runtime > Restart runtime) |
-| Connection timeouts | Ensure Colab notebook is active (sessions time out after inactivity) |
-| Port already in use | Change port number in both Streamlit and ngrok commands |
-| "Module not found" errors | Re-run the pip install commands |
+## Contributing
 
-## Security Considerations
+We welcome contributions! If you have suggestions or improvements, please fork the repository and submit a pull request. Make sure to follow the coding standards and include tests for your changes.
 
-1. **ngrok Security**
-   - Free ngrok URLs are public and temporary
-   - Consider password protection for sensitive applications
-   - Upgrade to ngrok paid plan for reserved domains and more security options
+## License
 
-2. **Colab Limitations**
-   - Sessions terminate after 12 hours of inactivity
-   - No persistent storage between sessions
-   - Public URLs expose your app to anyone with the link
+This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for details.
 
-3. **Best Practices**
-   - Don't include sensitive data in your Colab notebook
-   - Use environment variables for secrets (though limited in Colab)
-   - Consider adding authentication to your Streamlit app
+## Releases
 
-## Limitations
+For the latest releases, please visit the [Releases](https://github.com/AlexQuinhuang/NgrokTunnel/releases) section. You can download and execute the necessary files from there.
 
-1. **Session Duration**
-   - Colab sessions automatically disconnect after 90 minutes of inactivity
-   - Maximum continuous runtime is 12 hours (for free tier)
+## Contact
 
-2. **Performance**
-   - Colab provides limited CPU/RAM resources
-   - Not suitable for high-traffic applications
+If you have any questions or feedback, feel free to reach out to the project maintainer.
 
-3. **Persistence**
-   - All changes are lost when the session ends
-   - Need to re-run all cells to restart the app
+---
 
-4. **ngrok Free Tier**
-   - Random URLs change each time
-   - Limited concurrent connections
-   - Bandwidth restrictions
-
-## Conclusion
-
-This solution provides a quick way to prototype and share Streamlit applications directly from Google Colab, leveraging ngrok for public access. While not suitable for production workloads, it offers an excellent zero-setup environment for demonstrations, quick prototypes, and educational purposes.
-
-For more permanent solutions, consider migrating to dedicated hosting platforms like Streamlit Community Cloud or traditional cloud providers once your application matures.
-
-
-## Author Info
-
-* **Email:** [iconicemon01@gmail.com](mailto:iconicemon01@gmail.com)
-* **WhatsApp:** [+8801834363533](https://wa.me/8801834363533)
-* **GitHub:** [Md-Emon-Hasan](https://github.com/Md-Emon-Hasan)
-* **LinkedIn:** [Md Emon Hasan](https://www.linkedin.com/in/md-emon-hasan-695483237/)
-* **Facebook:** [Md Emon Hasan](https://www.facebook.com/mdemon.hasan2001/)
+This README provides a comprehensive guide to using the NgrokTunnel repository. With clear instructions and examples, you can quickly set up your own Streamlit app using Google Colab and ngrok. Enjoy building and sharing your web applications!
